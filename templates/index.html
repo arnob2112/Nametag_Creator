@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Nametag Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+<div class="container">
+    <div class="card">
+        <h1>Nametag Generator</h1>
+        <p class="subtitle">Fill the details and download PDF instantly</p>
+        <form method="POST">
+            <div class="grid">
+                <div class="input-group">
+                    <label>Rank</label>
+                    <input type="text" name="rank" required>
+                </div>
+                <div class="input-group">
+                    <label>Name (Bangla)</label>
+                    <input type="text" name="name_bn" required>
+                </div>
+                <div class="input-group">
+                    <label>Name (English)</label>
+                    <input type="text" name="name_en" required>
+                </div>
+                <div class="input-group">
+                    <label>PL</label>
+                    <input type="text" name="pl" required>
+                </div>
+                <div class="input-group">
+                    <label>Serial No</label>
+                    <input type="text" name="serial" required>
+                </div>
+                <div class="input-group">
+                    <label>OC No</label>
+                    <input type="text" name="oc_no" required>
+                </div>
+            </div>
+            <button type="submit">⬇ Download PDF</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>
