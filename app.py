@@ -1,46 +1,40 @@
 from flask import Flask, render_template, request, send_file
 from docx import Document
 from io import BytesIO
-from weasyprint import HTML
+from xhtml2pdf import pisa
 import uuid
 
 app = Flask(__name__)
 
 TEMPLATE_DOCX = "Nametag - Printable - Previous.docx"
 
-
 def replace_in_paragraphs(paragraphs, replacements):
     for paragraph in paragraphs:
-        # 1️⃣ Run-based replacement (keeps formatting)
         for run in paragraph.runs:
             for old, new in replacements.items():
                 if old in run.text:
                     run.text = run.text.replace(old, new)
 
-        # 2️⃣ Fallback for split runs (numbers / serial issue)
+        # Fallback for split runs
         original_text = "".join(run.text for run in paragraph.runs)
         updated_text = original_text
-
         for old, new in replacements.items():
             updated_text = updated_text.replace(old, new)
-
-        # 3️⃣ Write back ONLY if changed
         if paragraph.runs and updated_text != original_text:
             paragraph.runs[0].text = updated_text
             for run in paragraph.runs[1:]:
                 run.text = ""
 
-
 def replace_text(doc, replacements):
-    # Normal paragraphs
     replace_in_paragraphs(doc.paragraphs, replacements)
-
-    # Tables
     for table in doc.tables:
         for row in table.rows:
             for cell in row.cells:
                 replace_in_paragraphs(cell.paragraphs, replacements)
 
+def convert_html_to_pdf(source_html, output):
+    pisa_status = pisa.CreatePDF(source_html, dest=output)
+    return pisa_status.err
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -83,8 +77,11 @@ def index():
 
         # Generate PDF in memory
         pdf_file = BytesIO()
-        HTML(string=html_content).write_pdf(pdf_file)
+        error = convert_html_to_pdf(html_content, pdf_file)
         pdf_file.seek(0)
+
+        if error:
+            return "Error generating PDF", 500
 
         return send_file(
             pdf_file,
